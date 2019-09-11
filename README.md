@@ -49,10 +49,10 @@ int main(int argc, char *argv[]) {
   syd::net::resolver resolver;
   
   std::vector<syd::net::address> addresses;
-  addresses = resolver.lookup("www.test.com", 80).get(); // future
+  addresses = resolver.lookup(syd::net::stream, "www.test.com", 80).get(); // future
 
   // Connect to the first succeeding address.
-  syd::net::connected_socket socket(syd::net::stream, addresses.begin(), addresses.end());
+  syd::net::connected_socket socket(addresses.begin(), addresses.end());
   
   socket.write("GET / HTTP/1.1\nHOST: www.test.com\n\n");
 
