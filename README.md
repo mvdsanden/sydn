@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 
 ```
 
-### Blocking streaming IPv4 client with DNS resolve
+### Blocking streaming any protocol client with DNS resolve
 
 ```
 #include <iostream>
