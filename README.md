@@ -28,6 +28,8 @@ int main(int argc, char *argv[]) {
     return 2;
   }
 
+  socket.shutdown(syd::net::writing);
+
   do {
     char buffer[1024];
     std::streamsize count = socket.readSome(buffer, sizeof(buffer));
@@ -48,7 +50,7 @@ int main(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
   syd::net::resolver resolver;
   
-  std::vector<syd::net::address> addresses;
+  syd::net:address_info_list addresses;
   addresses = resolver.lookup(syd::net::stream, "www.test.com", 80).get(); // future
 
   // Connect to the first succeeding address.
@@ -60,6 +62,8 @@ int main(int argc, char *argv[]) {
     std::cerr << "could not connect or write request" << std::endl;
     return 2;
   }
+
+  socket.shutdown(syd::net::writing);
 
   do {
     char buffer[1024];
