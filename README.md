@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
   socket.write("GET / HTTP/1.1\nHOST: www.test.com\n\n");
 
   if (!socket) {
-    std::cerr << "could not connect or write request" << std::endl;
+    std::cerr << "could not connect or write request: " << std::strerror(socket.errno()) << std::endl;
     return 2;
   }
 
