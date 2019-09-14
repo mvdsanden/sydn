@@ -74,3 +74,8 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 ```
+
+# Random thoughts
+
+* For non-blocking add `bool socket::would_block() const`?
+
