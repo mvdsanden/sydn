@@ -19,7 +19,7 @@ These are some usage examples I think are simple yet powerfull.
 
 int main(int argc, char *argv[]) {
   syd::net::address remoteAddress = syd::net::make_ipv4_address("10.1.1.10", 80);
-  syd::net::connected_socket socket(syd::net::stream, remoteAddress);
+  syd::net::connected_socket socket(syd::net::type::stream, remoteAddress);
   
   socket.write("GET / HTTP/1.1\nHOST: www.test.com\n\n");
 
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   syd::net::resolver resolver;
   
   syd::net:address_info_list addresses;
-  addresses = resolver.lookup(syd::net::stream, "www.test.com", "80").get(); // future
+  addresses = resolver.lookup(syd::net::family::any, syd::net::type::stream, "www.test.com", "80").get(); // future
 
   // Connect to the first succeeding address.
   syd::net::connected_socket socket(addresses.begin(), addresses.end());
@@ -59,11 +59,11 @@ int main(int argc, char *argv[]) {
   socket.write("GET / HTTP/1.1\nHOST: www.test.com\n\n");
 
   if (!socket) {
-    std::cerr << "could not connect or write request: " << socket.error() << std::endl;
+    std::cerr << "could not connect or write request: " << socket.error().message() << std::endl;
     return 2;
   }
 
-  socket.shutdown(syd::net::writing);
+  socket.shutdown(syd::net::shutdown::writing);
 
   do {
     char buffer[1024];
