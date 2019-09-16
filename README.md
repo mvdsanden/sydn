@@ -75,6 +75,46 @@ int main(int argc, char *argv[]) {
 }
 ```
 
+### Blocking streaming IPv4 server
+
+``` 
+#include <iostream>
+#include <net>
+
+int main(int argc, char *argv[]) {
+  syd::net::address localAddress = syd::net::make_ipv4_address("0.0.0.0", 80);
+  syd::net::listen_socket listenSocket(syd::net::type::stream, remoteAddress);
+  
+  if (!listenSocket) {
+    std::cerr << "Could not create listen socket: " << listenSocket.error().message() << std::endl;
+    return 1;
+  }
+  
+  while (true) {
+    syd::net::address remoteAddress;
+    syd::net::connected_socket remoteSocket;
+  
+    std::tie(remoteAddress, remoteSocket) = socket.accept();
+
+    if (!listenSocket) {
+      std::cerr << "could not accept connection: " << listenSocket.error().message() << std::endl;
+      return 2;
+    }
+
+    do {
+      char buffer[1024];
+      std::streamsize count = socket.readSome(buffer, sizeof(buffer));
+      std::cout.write(buffer, count);
+    } while (0 != count);  
+
+    remoteSocket.write("HTTP/1.1 501 Not Implemented\r\n\r\n");
+  }
+
+  return 0;
+}
+
+```
+
 ### Blocking datagram IPv4 client
 
 ``` 
