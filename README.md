@@ -75,6 +75,51 @@ int main(int argc, char *argv[]) {
 }
 ```
 
+### Blocking datagram IPv4 client
+
+``` 
+#include <iostream>
+#include <net>
+
+struct Packet {
+  uint16_t d_version;
+  uint16_t d_data0;
+  uint32_t d_data1;  
+};
+
+int main(int argc, char *argv[]) {
+
+  syd::net::unconnected_socket socket(syd::net::type::datagram);
+
+  Packet packet{1,2,3};
+
+  syd::net::address sendAddress = syd::net::make_ipv4_address("10.1.1.10", 3000);
+  socket.write(packet, sendAddress);
+
+  if (!socket) {
+    std::cerr << "could not write packet: " << socket.error().message() << std::endl;
+    return 2;
+  }
+
+  syd::net::address receiveAddress;
+  
+  while (true) {
+  
+    std::tie(receiveAddress, packet) = socket.receive<Packet>();
+    
+    if (!socket) {
+      std::cerr << "Error receiving packet: << socket.error().message() << std:endl;
+      return 3;
+    }
+  
+  }
+
+  return 0;
+}
+
+```
+
+
 # Random thoughts
 
 * For non-blocking add `bool socket::would_block() const`?
