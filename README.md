@@ -18,13 +18,13 @@ These are some usage examples I think are simple yet powerfull.
 #include <net>
 
 int main(int argc, char *argv[]) {
-  syd::net::address remoteAddress(syd::net::ipv4, "10.1.1.10", 80);
+  syd::net::address remoteAddress = syd::net::make_ipv4_address("10.1.1.10", 80);
   syd::net::connected_socket socket(syd::net::stream, remoteAddress);
   
   socket.write("GET / HTTP/1.1\nHOST: www.test.com\n\n");
 
   if (!socket) {
-    std::cerr << "could not connect or write request: " << std::strerror(socket.errno()) << std::endl;
+    std::cerr << "could not connect or write request: " << socket.error().message() << std::endl;
     return 2;
   }
 
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   syd::net::resolver resolver;
   
   syd::net:address_info_list addresses;
-  addresses = resolver.lookup(syd::net::stream, "www.test.com", 80).get(); // future
+  addresses = resolver.lookup(syd::net::stream, "www.test.com", "80").get(); // future
 
   // Connect to the first succeeding address.
   syd::net::connected_socket socket(addresses.begin(), addresses.end());
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
   socket.write("GET / HTTP/1.1\nHOST: www.test.com\n\n");
 
   if (!socket) {
-    std::cerr << "could not connect or write request" << std::endl;
+    std::cerr << "could not connect or write request: " << socket.error() << std::endl;
     return 2;
   }
 
