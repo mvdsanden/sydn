@@ -20,7 +20,8 @@ void address::printTo(std::ostream *stream) const
                         sizeof(host),
                         port,
                         sizeof(port),
-                        NI_NUMERICHOST);
+                        NI_NUMERICHOST
+			| NI_NUMERICSERV);
 
   if (0 != res) {
     *stream << "invalid-address";

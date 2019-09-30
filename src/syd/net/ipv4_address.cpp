@@ -31,8 +31,13 @@ void ipv4_address::setPort(size_t port)
 std::string ipv4_address::address() const
 {
   auto addr = reinterpret_cast<sockaddr_in const *>(this);  
-  char buf[INET_ADDRSTRLEN] = {0};
-  return inet_ntop(addr->sin_family, &addr->sin_addr, buf, sizeof(buf));
+
+  std::string tmp;
+  tmp.resize(INET_ADDRSTRLEN);
+  inet_ntop(addr->sin_family, &addr->sin_addr, &tmp[0], INET_ADDRSTRLEN);
+  tmp.resize(strnlen(tmp.data(), INET_ADDRSTRLEN));
+
+  return tmp;
 }
 
 size_t ipv4_address::port() const

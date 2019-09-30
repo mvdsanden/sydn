@@ -12,12 +12,10 @@ class address
 {
   sockaddr_storage d_storage = {0};
 public:
-
   /**
    * Print the address to the specified 'stream'.
    */
   void printTo(std::ostream *stream) const;
-  
 };
 
 inline std::ostream &operator<<(std::ostream &stream, address const &value)
