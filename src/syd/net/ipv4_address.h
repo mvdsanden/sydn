@@ -10,7 +10,6 @@ namespace net {
 class ipv4_address : public address
 {
 public:
-
   ipv4_address(std::string const &address, size_t port);
 
   bool setAddress(std::string const &address);
@@ -20,7 +19,6 @@ public:
   std::string address() const;
 
   size_t port() const;
-  
 };
 
 } // namespace net

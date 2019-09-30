@@ -10,9 +10,7 @@ namespace net {
 
 class address
 {
-
   sockaddr_storage d_storage = {0};
-
 public:
 
   /**
