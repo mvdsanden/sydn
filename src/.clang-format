@@ -1,0 +1,25 @@
+
+BasedOnStyle: LLVM
+Language: Cpp
+BreakConstructorInitializersBeforeComma: false
+BreakConstructorInitializers: BeforeComma
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+BinPackArguments: false
+BinPackParameters: false
+AlwaysBreakTemplateDeclarations: true
+BreakBeforeBraces: Custom
+BraceWrapping:
+ AfterNamespace: false
+ AfterClass: true
+ AfterControlStatement: false
+ AfterEnum: true
+ AfterFunction: true
+ AfterStruct: true
+ AfterUnion: true
+ AfterExternBlock: true
+ BeforeCatch: false
+ BeforeElse: false
+ SplitEmptyFunction: false
+ SplitEmptyRecord: false
+ SplitEmptyNamespace: false
