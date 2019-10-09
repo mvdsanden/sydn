@@ -13,6 +13,11 @@ class address
   sockaddr_storage d_storage = {0};
 public:
   /**
+   * Return the address family.
+   */
+  int family() const;
+
+  /**
    * Print the address to the specified 'stream'.
    */
   void printTo(std::ostream *stream) const;

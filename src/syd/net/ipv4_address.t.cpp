@@ -7,6 +7,8 @@ int main(int argc, char *argv[]) {
 
   syd::net::ipv4_address addr("10.0.0.1", 10);
 
+
+  assert(AF_INET == addr.family());
   assert("10.0.0.1" == addr.address());
   assert(10 == addr.port());
   

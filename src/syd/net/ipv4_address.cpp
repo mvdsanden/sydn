@@ -1,12 +1,48 @@
 // ipv4_address.cpp                                                   -*-c++-*-
 #include <ipv4_address.h>
+#include <address.ih>
 
 #include <arpa/inet.h>
 #include <cstring>
+#include <iostream>
+#include <netdb.h>
 #include <string>
 
 namespace syd {
 namespace net {
+
+  namespace internal {
+    template <>
+    void printAddress<AF_INET>(std::ostream *stream, sockaddr_storage const *address)
+    {
+      char host[NI_MAXHOST];
+      char port[NI_MAXSERV];
+      
+      int res = getnameinfo(reinterpret_cast<sockaddr const *>(address),
+			    sizeof(address),
+			    host,
+			    sizeof(host),
+			    port,
+			    sizeof(port),
+			    NI_NUMERICHOST
+			    | NI_NUMERICSERV);
+
+      if (0 != res) {
+	*stream << "invalid-address";
+	return;
+      }
+
+      *stream << host << ":" << port;
+    }
+
+    template <>
+    void printAddress<AF_INET6>(std::ostream *stream, sockaddr_storage const *address)
+    {
+      printAddress<AF_INET>(stream, address);
+    }
+
+  } // namespace internal
+  
 
 ipv4_address::ipv4_address(std::string const &address, size_t port)
 {

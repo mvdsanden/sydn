@@ -1,0 +1,19 @@
+// address.ih                                                         -*-c++-*-
+#ifndef INCLUDED_SYD_NET_INTERNAL_ADDRESS
+#define INCLUDED_SYD_NET_INTERNAL_ADDRESS
+
+#include <iosfwd>
+//#include <sys/socket.h>
+
+namespace syd {
+namespace net {
+  namespace internal {
+
+    template <int Family>
+    void printAddress(std::ostream *stream, struct sockaddr_storage const *address);
+
+  }
+}
+}
+
+#endif // INCLUDED_SYD_NET_INTERNAL_ADDRESS

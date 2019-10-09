@@ -1,13 +1,24 @@
 // unix_address.cpp                                                   -*-c++-*-
 #include <unix_address.h>
+#include <address.ih>
 
 #include <sys/un.h>
 
-#include <string>
 #include <cassert>
+#include <iostream>
+#include <string>
 
 namespace syd {
 namespace net {
+
+  namespace internal {
+    template <>
+    void printAddress<AF_UNIX>(std::ostream *stream, sockaddr_storage const *address)
+    {
+      auto const *addr = reinterpret_cast<sockaddr_un const*>(address);
+      *stream << "unix:" << addr->sun_path;
+    }
+  } // namespace internal
 
   unix_address::unix_address(std::string const &path)
   {
@@ -22,7 +33,7 @@ namespace net {
     if (sizeof(addr->sun_path) < path.length()) {
       return false;
     }
-    memcpy(addr->sun_path, path.c_str(), path.length());
+    strncpy(addr->sun_path, path.c_str(), sizeof(addr->sun_path));
     return true;
   }
 
