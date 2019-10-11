@@ -24,16 +24,17 @@ public:
    */
   int family() const;
 };
-
+  
   std::ostream &operator<<(std::ostream &stream, address const &value);
 
-  template <typename T>
-  inline T &address_cast(address &value)
+  template <typename T, typename S>
+  inline T address_cast(S value)
   {
-    //    static_assert(std::is_base_of<address, typename T>::value, "address is not convertable to T");
+    static_assert(std::is_same<address, typename std::remove_pointer<S>::type>::value, "S is not an address");
+    static_assert(std::is_base_of<address, typename std::remove_pointer<T>::type>::value, "address is not convertable to return type");
     return *reinterpret_cast<T*>(&value);
-  }
-  
+}
+
 } // namespace net
 } // namespace syd
 
