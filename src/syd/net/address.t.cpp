@@ -13,5 +13,11 @@ int main(int argc, char *argv[]) {
 
   std::cout << addr << std::endl;
 
+  std::string test;
+  
+  auto ipv4Address = syd::net::address_cast<syd::net::ipv4_address>(addr);
+
+  std::cout << ipv4Address << std::endl;
+  
   return 0;
 }

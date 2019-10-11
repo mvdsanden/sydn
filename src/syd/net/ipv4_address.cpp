@@ -13,13 +13,16 @@ namespace net {
 
   namespace internal {
     template <>
-    void printAddress<AF_INET>(std::ostream *stream, sockaddr_storage const *address)
+    void printAddress<AF_INET>(std::ostream *stream,
+			       sockaddr_storage const *address)
     {
       char host[NI_MAXHOST];
       char port[NI_MAXSERV];
-      
+
+      auto tmp = reinterpret_cast<sockaddr const *>(address);
+
       int res = getnameinfo(reinterpret_cast<sockaddr const *>(address),
-			    sizeof(address),
+			    sizeof(*address),
 			    host,
 			    sizeof(host),
 			    port,
@@ -28,7 +31,7 @@ namespace net {
 			    | NI_NUMERICSERV);
 
       if (0 != res) {
-	*stream << "invalid-address";
+	*stream << "invalid-address(" << gai_strerror(res) << ")";
 	return;
       }
 

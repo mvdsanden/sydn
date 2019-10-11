@@ -22,7 +22,7 @@ namespace internal {
     return d_storage.ss_family;
   }
 
-void address::printTo(std::ostream *stream) const
+void address::print_to(std::ostream *stream) const
 {
   switch (d_storage.ss_family) {
   case AF_INET: internal::printAddress<AF_INET>(stream, &d_storage); return;
