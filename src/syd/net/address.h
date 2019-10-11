@@ -23,24 +23,15 @@ public:
    * Return the address family.
    */
   int family() const;
-
-  /**
-   * Print the address to the specified 'stream'.
-   */
-  void print_to(std::ostream *stream) const;
 };
 
-inline std::ostream &operator<<(std::ostream &stream, address const &value)
-{
-  value.print_to(&stream);
-  return stream;
-}
+  std::ostream &operator<<(std::ostream &stream, address const &value);
 
   template <typename T>
   inline T &address_cast(address &value)
   {
-    static_assert(std::is_base_of<address, typename T>::value, "address is not convertable to T");
-    *reinterpret_cast<T*>(&address);
+    //    static_assert(std::is_base_of<address, typename T>::value, "address is not convertable to T");
+    return *reinterpret_cast<T*>(&value);
   }
   
 } // namespace net
