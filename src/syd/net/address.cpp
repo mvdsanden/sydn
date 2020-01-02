@@ -9,33 +9,50 @@ namespace syd {
 namespace net {
 
 namespace internal {
-
 template <int Family>
 void printAddress(std::ostream *stream, sockaddr const *address, size_t length)
 {
   *stream << "Unknown address family: " << static_cast<int>(address->sa_family);
 }
 
+template <>
+void printAddress<AF_UNSPEC>(std::ostream *  stream,
+                             sockaddr const *address,
+                             size_t          length)
+{
+  *stream << "Unspecified address";
+}
 } // namespace internal
 
-void address::resize(size_t size) { d_data.resize(); }
+void address::resize(size_t size)
+{
+  assert(size == 0 || size >= sizeof(sockaddr));
+  
+  const bool wasZero = d_data.size() == 0;
+  d_data.resize(size);
 
-int address::family() const { return native()->sa_family; }
+  if (size != 0 && wasZero) {
+    std::fill(d_data.data(), d_data.data() + size, 0);
+  }
+}
+
+int address::family() const
+{
+  return size() != 0 ? native()->sa_family : AF_UNSPEC;
+}
 
 std::ostream &operator<<(std::ostream &stream, address const &address)
 {
+#define CASE(x)                                                                \
+  case x:                                                                      \
+    internal::printAddress<x>(&stream, address.native(), address.size());      \
+    break
+
   switch (address.family()) {
-  case AF_INET:
-    internal::printAddress<AF_INET>(&stream, address.native(), address.size());
-    break;
-
-  case AF_INET6:
-    internal::printAddress<AF_INET6>(&stream, address.native(), address.size());
-    break;
-
-  case AF_UNIX:
-    internal::printAddress<AF_UNIX>(&stream, address.native(), address.size());
-    break;
+    CASE(AF_UNSPEC);
+    CASE(AF_INET);
+    CASE(AF_INET6);
+    CASE(AF_UNIX);
 
   default:
     internal::printAddress<-1>(&stream, address.native(), address.size());
@@ -43,6 +60,7 @@ std::ostream &operator<<(std::ostream &stream, address const &address)
   };
 
   return stream;
+#undef CASE
 }
 
 } // namespace net

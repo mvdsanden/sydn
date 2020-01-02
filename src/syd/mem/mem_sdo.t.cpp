@@ -1,53 +1,48 @@
 #include <mem_sdo.h>
 
-#include <cassert>
+#include <gtest/gtest.h>
 
-using namespace mem;
+using namespace syd::mem;
 
-void test1()
+TEST(SdoTest, DefaultConstruction)
 {
   const size_t s = 16;
-  sdo<s> obj;
-  assert(s == obj.capacity());
-  assert(0 == obj.size());
+  sdo<s>       obj;
+  EXPECT_EQ(s, obj.capacity());
+  EXPECT_EQ(0, obj.size());
 }
 
-void test2()
+TEST(SdoTest, ConstructWithSize)
 {
   const size_t s = 16;
-  sdo<s> obj(s);
-  assert(s == obj.capacity());
-  assert(s == obj.size());
+  sdo<s>       obj(s);
+  EXPECT_EQ(s, obj.capacity());
+  EXPECT_EQ(s, obj.size());
 }
 
-void test3()
+TEST(SdoTest, ResizePlusOne)
 {
   const size_t s = 16;
-  sdo<s> obj(s);
-  obj.resize(s+1);
-  assert(s < obj.capacity());
-  assert(s+1 == obj.size());
+  sdo<s>       obj(s);
+  obj.resize(s + 1);
+  EXPECT_LT(s, obj.capacity());
+  EXPECT_EQ(s + 1, obj.size());
 }
 
-void test3()
+TEST(SdoTest, ResizeMinusOne)
 {
   const size_t s = 16;
-  sdo<s> obj(s);
-  obj.resize(s-1);
-  assert(s == obj.capacity());
-  assert(s-1 == obj.size());
+  sdo<s>       obj(s);
+  obj.resize(s - 1);
+  EXPECT_EQ(s, obj.capacity());
+  EXPECT_EQ(s - 1, obj.size());
 }
 
-void test3()
+TEST(SdoTest, NoReallocWhenResizeSmallerThanMinSize)
 {
   const size_t s = 16;
-  sdo<s> obj;
-  const char *ptr = obj.data();
-  obj.resize(s-1);
-  assert(ptr == obj.data());
-}
-
-int main(int argc, char **argv)
-{
-  return 0;
+  sdo<s>       obj(s);
+  const char * ptr = obj.data();
+  obj.resize(s - 1);
+  EXPECT_EQ(ptr, obj.data());
 }

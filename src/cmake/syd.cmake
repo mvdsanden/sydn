@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 
+set(CMAKE_CXX_FLAGS "-Werror -std=c++17 -ggdb")
+
 function(syd_add_library)
   set(options "")
   set(oneValueArgs NAME)
@@ -8,14 +10,16 @@ function(syd_add_library)
 
   set(sources "")
   
-  foreach(component ${ARGS_COMPONENTS})
+  foreach(component ${ARGS_COMPONENTS})    
     set(source "${component}.cpp")
-    if(EXISTS ${source})
+    message("Found source ${source}")
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${source}")
       list(APPEND sources "${CMAKE_CURRENT_SOURCE_DIR}/${source}")
     endif()
   endforeach(component)
 
   add_library(${ARGS_NAME} ${sources})
+  target_include_directories (${ARGS_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
   target_link_libraries(${ARGS_NAME} ${ARGS_DEPENDENCIES})
 
   foreach(component ${ARGS_COMPONENTS})
@@ -24,7 +28,7 @@ function(syd_add_library)
       set(target "${component}.t.tsk")
       add_executable(${target} ${source})
       target_include_directories(${target} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-      target_link_libraries(${target} ${ARGS_NAME})
+      target_link_libraries(${target} ${ARGS_NAME} gtest_main)
       add_test(NAME ${source} COMMAND ${target})
     endif()
   endforeach(component)

@@ -2,6 +2,11 @@
 #ifndef INCLUDED_SYD_MEM_SDO
 #define INCLUDED_SYD_MEM_SDO
 
+#include <cstddef>
+#include <utility>
+#include <algorithm>
+#include <cassert>
+
 namespace syd {
 namespace mem {
 
@@ -17,7 +22,7 @@ class sdo
   union
   {
     char *d_ptr;
-    char  d_data[c_sdoSize];
+    char  d_data[_smallSize];
   };
 
 public:
@@ -27,7 +32,7 @@ public:
 
   sdo(sdo &&other) noexcept { *this = std::move(other); }
 
-  sdo::~sdo()
+  ~sdo()
   {
     if (d_capacity > _smallSize) {
       delete[] d_ptr;
@@ -37,7 +42,7 @@ public:
   sdo &operator=(sdo const &other)
   {
     resize(other.d_size);
-    std::memcpy(data(), other.data(), d_size);
+    std::copy(other.data(), other.data() + d_size, data());
     return *this;
   }
 
@@ -49,7 +54,7 @@ public:
       // because the capacity is equal to the small data optimization size,
       // so no need for memory allocation in the copy.
       *this = other;
-      return;
+      return *this;
     }
 
     std::swap(d_capacity, other.d_capacity);
@@ -78,17 +83,21 @@ public:
   }
 
   size_t size() const { return d_size; }
-  size_t capactiry() const { return d_capacity; }
+  size_t capacity() const { return d_capacity; }
 
   /**
    * Return pointer to the data.
+   *
+   * Behavior is undefined unless size is higher than zero.
    */
   char const *data() const { return d_capacity <= _smallSize ? d_data : d_ptr; }
 
   /**
    * Return pointer to the data.
+   *
+   * Behavior is undefined unless size is higher than zero.
    */
-  sockaddr *data() { return d_capacity <= _smallSize ? d_data : d_ptr; }
+  char *data() { return d_capacity <= _smallSize ? d_data : d_ptr; }
 };
 
 } // namespace mem

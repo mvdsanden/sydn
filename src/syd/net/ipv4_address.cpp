@@ -1,6 +1,6 @@
 // ipv4_address.cpp                                                   -*-c++-*-
-#include <ipv4_address.h>
 #include <address.ih>
+#include <ipv4_address.h>
 
 #include <arpa/inet.h>
 #include <cstring>
@@ -11,47 +11,47 @@
 namespace syd {
 namespace net {
 
-  namespace internal {
-    template <>
-    void printAddress<AF_INET>(std::ostream *stream,
-                               sockaddr const *address,
-                               size_t length)
-    {
-      char host[NI_MAXHOST];
-      char port[NI_MAXSERV];
+namespace internal {
+template <>
+void printAddress<AF_INET>(std::ostream *  stream,
+                           sockaddr const *address,
+                           size_t          length)
+{
+  char host[NI_MAXHOST];
+  char port[NI_MAXSERV];
 
-      auto tmp = reinterpret_cast<sockaddr const *>(address);
+  auto tmp = reinterpret_cast<sockaddr const *>(address);
 
-      int res = getnameinfo(address,
-                            length,
-                            host,
-                            sizeof(host),
-                            port,
-                            sizeof(port),
-                            NI_NUMERICHOST
-                            | NI_NUMERICSERV);
+  int res = getnameinfo(address,
+                        length,
+                        host,
+                        sizeof(host),
+                        port,
+                        sizeof(port),
+                        NI_NUMERICHOST | NI_NUMERICSERV);
 
-      if (0 != res) {
-        *stream << "invalid-address(" << gai_strerror(res) << ")";
-        return;
-      }
+  if (0 != res) {
+    *stream << "invalid-address(" << gai_strerror(res) << ")";
+    return;
+  }
 
-      *stream << host << ":" << port;
-    }
+  *stream << host << ":" << port;
+}
 
-    template <>
-    void printAddress<AF_INET6>(std::ostream *stream, sockaddr const *address, size_t length)
-    {
-      printAddress<AF_INET>(stream, address, length);
-    }
+template <>
+void printAddress<AF_INET6>(std::ostream *  stream,
+                            sockaddr const *address,
+                            size_t          length)
+{
+  printAddress<AF_INET>(stream, address, length);
+}
 
-  } // namespace internal
-  
+} // namespace internal
 
 ipv4_address::ipv4_address(std::string const &address, size_t port)
-  : address(sizeof(sockaddr_in))
+    : address(sizeof(sockaddr_in))
 {
-  auto addr = reinterpret_cast<sockaddr_in*>(native());
+  auto addr        = reinterpret_cast<sockaddr_in *>(native());
   addr->sin_family = AF_INET;
   setPort(port);
   setAddress(address);
@@ -83,10 +83,9 @@ std::string ipv4_address::address() const
 
 size_t ipv4_address::port() const
 {
-  auto addr = reinterpret_cast<sockaddr_in const*>(native());
+  auto addr = reinterpret_cast<sockaddr_in const *>(native());
   return ntohs(addr->sin_port);
 }
 
 } // namespace net
 } // namespace syd
-
