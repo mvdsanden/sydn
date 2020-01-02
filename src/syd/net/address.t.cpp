@@ -13,15 +13,15 @@ int main(int argc, char *argv[]) {
 
   std::cout << addr << std::endl;
 
-  auto ipv4Address = syd::net::address_cast<syd::net::ipv4_address>(addr);
-  auto ipv4Address1 = syd::net::address_cast<syd::net::ipv4_address*>(&addr);
-  auto ipv4Address2 = syd::net::address_cast<syd::net::ipv4_address>(syd::net::address());
+  // auto ipv4Address = syd::net::address_cast<syd::net::ipv4_address>(addr);
+  // auto ipv4Address1 = syd::net::address_cast<syd::net::ipv4_address*>(&addr);
+  // auto ipv4Address2 = syd::net::address_cast<syd::net::ipv4_address>(syd::net::address());
 
-  //  auto ipv4Address2 = syd::net::address_cast<syd::net::ipv4_address*>(&addr);
+  // //  auto ipv4Address2 = syd::net::address_cast<syd::net::ipv4_address*>(&addr);
 
-  std::cout << ipv4Address << std::endl;
-  std::cout << *ipv4Address1 << std::endl;
-  std::cout << ipv4Address2 << std::endl;
+  // std::cout << ipv4Address << std::endl;
+  // std::cout << *ipv4Address1 << std::endl;
+  // std::cout << ipv4Address2 << std::endl;
   
   return 0;
 }

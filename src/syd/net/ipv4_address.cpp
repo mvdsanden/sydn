@@ -14,42 +14,44 @@ namespace net {
   namespace internal {
     template <>
     void printAddress<AF_INET>(std::ostream *stream,
-			       sockaddr_storage const *address)
+                               sockaddr const *address,
+                               size_t length)
     {
       char host[NI_MAXHOST];
       char port[NI_MAXSERV];
 
       auto tmp = reinterpret_cast<sockaddr const *>(address);
 
-      int res = getnameinfo(reinterpret_cast<sockaddr const *>(address),
-			    sizeof(*address),
-			    host,
-			    sizeof(host),
-			    port,
-			    sizeof(port),
-			    NI_NUMERICHOST
-			    | NI_NUMERICSERV);
+      int res = getnameinfo(address,
+                            length,
+                            host,
+                            sizeof(host),
+                            port,
+                            sizeof(port),
+                            NI_NUMERICHOST
+                            | NI_NUMERICSERV);
 
       if (0 != res) {
-	*stream << "invalid-address(" << gai_strerror(res) << ")";
-	return;
+        *stream << "invalid-address(" << gai_strerror(res) << ")";
+        return;
       }
 
       *stream << host << ":" << port;
     }
 
     template <>
-    void printAddress<AF_INET6>(std::ostream *stream, sockaddr_storage const *address)
+    void printAddress<AF_INET6>(std::ostream *stream, sockaddr const *address, size_t length)
     {
-      printAddress<AF_INET>(stream, address);
+      printAddress<AF_INET>(stream, address, length);
     }
 
   } // namespace internal
   
 
 ipv4_address::ipv4_address(std::string const &address, size_t port)
+  : address(sizeof(sockaddr_in))
 {
-  auto addr = reinterpret_cast<sockaddr_in*>(this);
+  auto addr = reinterpret_cast<sockaddr_in*>(native());
   addr->sin_family = AF_INET;
   setPort(port);
   setAddress(address);
@@ -57,19 +59,19 @@ ipv4_address::ipv4_address(std::string const &address, size_t port)
 
 bool ipv4_address::setAddress(std::string const &address)
 {
-  auto addr = reinterpret_cast<sockaddr_in *>(this);
+  auto addr = reinterpret_cast<sockaddr_in *>(native());
   return 1 == inet_pton(addr->sin_family, address.c_str(), &addr->sin_addr);
 }
 
 void ipv4_address::setPort(size_t port)
 {
-  auto addr      = reinterpret_cast<sockaddr_in *>(this);
+  auto addr      = reinterpret_cast<sockaddr_in *>(native());
   addr->sin_port = htons(port);
 }
 
 std::string ipv4_address::address() const
 {
-  auto addr = reinterpret_cast<sockaddr_in const *>(this);  
+  auto addr = reinterpret_cast<sockaddr_in const *>(native());
 
   std::string tmp;
   tmp.resize(INET_ADDRSTRLEN);
@@ -81,7 +83,7 @@ std::string ipv4_address::address() const
 
 size_t ipv4_address::port() const
 {
-  auto addr = reinterpret_cast<sockaddr_in const*>(this);
+  auto addr = reinterpret_cast<sockaddr_in const*>(native());
   return ntohs(addr->sin_port);
 }
 

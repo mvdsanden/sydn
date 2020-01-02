@@ -10,7 +10,7 @@ namespace net {
   namespace internal {
 
     template <int Family>
-    void printAddress(std::ostream *stream, struct sockaddr_storage const *address);
+    void printAddress(std::ostream *stream, struct sockaddr const *address, size_t length);
 
   }
 }

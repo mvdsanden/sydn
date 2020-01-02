@@ -17,23 +17,36 @@ namespace net {
   
 class address
 {
-  sockaddr_storage d_storage = {0};
+  static const size_t c_sdoSize = 32;
+
+  mem::sdo<c_sdoSize> d_data;
+  
 public:
+
+  /**
+   * Allocate the specified 'size'.
+   */
+  void resize(size_t size);
+
   /**
    * Return the address family.
    */
   int family() const;
+
+  size_t          size() const { return d_data.size(); }
+  sockaddr const *native() const { return d_data.data(); }
+  sockaddr *      native() { return d_data.data(); }
 };
   
   std::ostream &operator<<(std::ostream &stream, address const &value);
 
-  template <typename T, typename S>
-  inline T address_cast(S value)
-  {
-    static_assert(std::is_same<address, typename std::remove_pointer<S>::type>::value, "S is not an address");
-    static_assert(std::is_base_of<address, typename std::remove_pointer<T>::type>::value, "address is not convertable to return type");
-    return *reinterpret_cast<T*>(&value);
-}
+//   template <typename T, typename S>
+//   inline T address_cast(S value)
+//   {
+//     static_assert(std::is_same<address, typename std::remove_pointer<S>::type>::value, "S is not an address");
+//     static_assert(std::is_base_of<address, typename std::remove_pointer<T>::type>::value, "address is not convertable to return type");
+//     return *reinterpret_cast<T*>(&value);
+// }
 
 } // namespace net
 } // namespace syd
