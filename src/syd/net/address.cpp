@@ -27,13 +27,7 @@ void printAddress<AF_UNSPEC>(std::ostream *  stream,
 void address::resize(size_t size)
 {
   assert(size == 0 || size >= sizeof(sockaddr));
-  
-  const bool wasZero = d_data.size() == 0;
   d_data.resize(size);
-
-  if (size != 0 && wasZero) {
-    std::fill(d_data.data(), d_data.data() + size, 0);
-  }
 }
 
 int address::family() const

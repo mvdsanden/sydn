@@ -1,26 +1,41 @@
 // unix_address.cpp                                                   -*-c++-*-
-#include <iostream>
 #include <unix_address.h>
-#include <cassert>
 
-int main(int argc, char *argv[]) {
+#include <sys/un.h>
 
-  syd::net::unix_address addr("/tmp/test");
+#include <gtest/gtest.h>
 
-  assert(AF_UNIX == addr.family());
-  assert("/tmp/test" == addr.path());
+using namespace syd;
+
+TEST(NetUnixAddress, Construction)
+{
+  net::unix_address address("/tmp/test");
+  EXPECT_EQ(address.family(), net::address_family::Unix);
+  EXPECT_EQ(address.path(), "/tmp/test");
+}
+
+TEST(NetUnixAddress, SetPathValid)
+{
+  net::unix_address address("/tmp/test");
+  EXPECT_EQ(address.set_path("/usr/tmp/test"), true);
+  EXPECT_EQ(address.path(), "/usr/tmp/test");
+}
+
+TEST(NetUnixAddress, SetPathInvalid)
+{
+  net::unix_address address("/tmp/test");
+
+  std::string path(sizeof(sockaddr_un::sun_path), 'a');
   
-  std::cout << addr << std::endl;
+  EXPECT_EQ(address.set_path("/" + path), false);
+}
 
-  addr.setPath("hello");
+TEST(NetUnixAddress, Print)
+{
+  net::unix_address address("/tmp/test");
 
-  std::cout << "Path: " << addr.path() << std::endl;
+  std::ostringstream ss;
+  ss << address;
 
-  assert("hello" == addr.path());
-
-  assert(!addr.setPath(std::string(110,'a')));
-
-  std::cout << addr << std::endl;
-  
-  return 0;
+  EXPECT_EQ(ss.str(), "unix:/tmp/test");
 }

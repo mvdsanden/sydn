@@ -19,6 +19,26 @@ enum class address_family : int
   Unix        = AF_UNIX
 };
 
+inline bool operator==(const address_family &lhs, int rhs)
+{
+  return static_cast<int>(lhs) == rhs;
+}
+
+inline bool operator==(int lhs, const address_family &rhs)
+{
+  return lhs == static_cast<int>(rhs);
+}
+
+inline bool operator!=(const address_family &lhs, int rhs)
+{
+  return static_cast<int>(lhs) != rhs;
+}
+
+inline bool operator!=(int lhs, const address_family &rhs)
+{
+  return lhs != static_cast<int>(rhs);
+}
+  
 class address
 {
   static const size_t c_sdoSize = 32;
@@ -44,6 +64,11 @@ public:
   size_t size() const { return d_data.size(); }
 
   /**
+   * Return the capacity of the address buffer.
+   */
+  size_t capacity() const { return d_data.capacity(); }
+
+  /**
    * Return a pointer to the native address buffer.
    */
   sockaddr const *native() const
@@ -56,9 +81,20 @@ public:
   /**
    * Return a pointer to the native address buffer.
    */
-  sockaddr *native() {
+  sockaddr *native()
+  {
     return d_data.size() != 0 ? reinterpret_cast<sockaddr *>(d_data.data())
                               : nullptr;
+  }
+
+  bool operator==(std::nullptr_t) const
+  {
+    return family() != address_family::Unspecified;
+  }
+
+  bool operator!=(std::nullptr_t) const
+  {
+    return family() != address_family::Unspecified;
   }
 };
 
@@ -73,26 +109,6 @@ std::ostream &operator<<(std::ostream &stream, address const &value);
 //     std::remove_pointer<T>::type>::value, "address is not convertable to
 //     return type"); return *reinterpret_cast<T*>(&value);
 // }
-
-inline bool operator==(const address_family &lhs, int rhs)
-{
-  return static_cast<int>(lhs) == rhs;
-}
-
-inline bool operator==(int lhs, const address_family &rhs)
-{
-  return lhs == static_cast<int>(rhs);
-}
-
-inline bool operator!=(const address_family &lhs, int rhs)
-{
-  return static_cast<int>(lhs) != rhs;
-}
-
-inline bool operator!=(int lhs, const address_family &rhs)
-{
-  return lhs != static_cast<int>(rhs);
-}
   
 } // namespace net
 } // namespace syd

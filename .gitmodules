@@ -1,3 +1,6 @@
 [submodule "src/googletest"]
 	path = src/googletest
 	url = https://github.com/google/googletest
+[submodule "src/GSL"]
+	path = src/GSL
+	url = https://github.com/microsoft/GSL

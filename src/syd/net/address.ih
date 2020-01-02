@@ -3,14 +3,14 @@
 #define INCLUDED_SYD_NET_INTERNAL_ADDRESS
 
 #include <iosfwd>
-//#include <sys/socket.h>
+#include <sys/socket.h>
 
 namespace syd {
 namespace net {
   namespace internal {
 
     template <int Family>
-    void printAddress(std::ostream *stream, struct sockaddr const *address, size_t length);
+    void printAddress(std::ostream *stream, sockaddr const *address, size_t length);
 
   }
 }

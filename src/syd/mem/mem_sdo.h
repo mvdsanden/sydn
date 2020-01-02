@@ -22,7 +22,7 @@ class sdo
   union
   {
     char *d_ptr;
-    char  d_data[_smallSize];
+    char  d_data[_smallSize] = {0};
   };
 
 public:

@@ -12,7 +12,7 @@ class unix_address : public address
 public:
   unix_address(std::string const &path);
 
-  bool setPath(std::string const &path);
+  bool set_path(std::string const &path);
 
   std::string path() const;
 };

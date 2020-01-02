@@ -6,3 +6,4 @@ include(syd)
 
 add_subdirectory(syd)
 add_subdirectory(googletest)
+add_subdirectory(GSL)

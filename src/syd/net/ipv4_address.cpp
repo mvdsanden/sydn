@@ -48,22 +48,30 @@ void printAddress<AF_INET6>(std::ostream *  stream,
 
 } // namespace internal
 
-ipv4_address::ipv4_address(std::string const &address, size_t port)
-    : address(sizeof(sockaddr_in))
+ipv4_address::ipv4_address()
 {
+  resize(sizeof(sockaddr_in));
   auto addr        = reinterpret_cast<sockaddr_in *>(native());
   addr->sin_family = AF_INET;
-  setPort(port);
-  setAddress(address);
 }
 
-bool ipv4_address::setAddress(std::string const &address)
+ipv4_address::ipv4_address(std::string const &address, size_t port)
+{
+  resize(sizeof(sockaddr_in));
+  
+  auto addr        = reinterpret_cast<sockaddr_in *>(native());
+  addr->sin_family = AF_INET;
+  set_port(port);
+  set_address(address);
+}
+
+bool ipv4_address::set_address(std::string const &address)
 {
   auto addr = reinterpret_cast<sockaddr_in *>(native());
   return 1 == inet_pton(addr->sin_family, address.c_str(), &addr->sin_addr);
 }
 
-void ipv4_address::setPort(size_t port)
+void ipv4_address::set_port(size_t port)
 {
   auto addr      = reinterpret_cast<sockaddr_in *>(native());
   addr->sin_port = htons(port);

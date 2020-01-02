@@ -1,28 +1,54 @@
 // ipv4_address.cpp                                                   -*-c++-*-
-#include <iostream>
 #include <ipv4_address.h>
-#include <cassert>
 
-int main(int argc, char *argv[]) {
+#include <gtest/gtest.h>
 
-  syd::net::ipv4_address addr("10.0.0.1", 10);
+using namespace syd;
 
+TEST(NetIpv4Address, DefaultConstructor) {
+  net::ipv4_address address;
+  EXPECT_EQ(address.family(), net::address_family::IPv4);
+  EXPECT_EQ(address.address(), "0.0.0.0");
+  EXPECT_EQ(address.port(), 0);
+}
 
-  assert(AF_INET == addr.family());
-  assert("10.0.0.1" == addr.address());
-  assert(10 == addr.port());
-  
-  std::cout << addr << std::endl;
+TEST(NetIpv4Address, ConstructorValid) {
+  net::ipv4_address address{"10.0.0.1", 12345};
+  EXPECT_EQ(address.family(), net::address_family::IPv4);
+  EXPECT_EQ(address.address(), "10.0.0.1");
+  EXPECT_EQ(address.port(), 12345);
+}
 
-  addr.setAddress("127.0.0.1");
-  addr.setPort(80);
+TEST(NetIpv4Address, ConstructorInvalid) {
+  net::ipv4_address address{"hello", 12345};
+  EXPECT_EQ(address.family(), net::address_family::IPv4);
+  EXPECT_EQ(address.address(), "0.0.0.0");
+  EXPECT_EQ(address.port(), 12345);
+}
 
-  assert("127.0.0.1" == addr.address());
-  assert(80 == addr.port());
+TEST(NetIpv4Address, SetAddressValid) {
+  net::ipv4_address address{"10.0.0.1", 0};
+  EXPECT_EQ(address.set_address("10.0.1.1"), true);
+  EXPECT_EQ(address.address(), "10.0.1.1");
+}
 
-  assert(!addr.setAddress("test"));
+TEST(NetIpv4Address, SetAddressInvalid) {
+  net::ipv4_address address{"10.0.0.1", 0};
+  EXPECT_EQ(address.set_address("hello"), false);
+  EXPECT_EQ(address.address(), "10.0.0.1");
+}
 
-  std::cout << addr << std::endl;
-  
-  return 0;
+TEST(NetIpv4Address, SetPort) {
+  net::ipv4_address address{"10.0.0.1", 0};
+  address.set_port(12345);
+  EXPECT_EQ(address.port(), 12345);
+}
+
+TEST(NetIpv4Address, Print) {
+  net::ipv4_address address{"10.0.0.1", 12345};
+
+  std::ostringstream ss;
+  ss << address;
+
+  EXPECT_EQ(ss.str(), "10.0.0.1:12345");
 }
