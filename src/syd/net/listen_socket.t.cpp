@@ -90,3 +90,29 @@ TEST(NetListenSocket, Destruction)
 
   EXPECT_EQ(countFileDescriptorsInUse(), fdCount);
 }
+
+TEST(NetListenSocket, AcceptWithAddress)
+{
+  net::ipv4_address localAddress("127.0.0.1", 0);
+
+  net::listen_socket socket(net::type::Stream, localAddress);
+  EXPECT_TRUE(socket) << socket.error().message();
+
+  net::address serverAddress = socket.local_address();
+  std::cout << "Server address: " << serverAddress << "\n";
+  
+  auto connectFuture =
+      std::async(std::launch::async, [serverAddress]() {
+        net::connected_socket remoteSocket(net::type::Stream, serverAddress);
+        EXPECT_TRUE(remoteSocket) << remoteSocket.error().message();
+	return remoteSocket.local_address();
+      });
+
+  net::connected_socket clientSocket;
+  net::address clientAddress;
+
+  socket.accept(clientSocket, clientAddress);
+  EXPECT_TRUE(socket) << socket.error().message();
+  EXPECT_TRUE(clientSocket) << clientSocket.error().message();
+  EXPECT_TRUE(compareAddress(connectFuture.get(), clientAddress));
+}

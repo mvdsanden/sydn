@@ -43,6 +43,13 @@ listen_socket::listen_socket(type type, address const &local_address)
   if (!check_result(res)) {
     return;
   }
+
+  d_local_address.resize(local_address.size());
+  socklen_t addressLength = d_local_address.capacity();
+  res = getsockname(d_fd, d_local_address.native(), &addressLength);
+  if (!check_result(res)) {
+    return;
+  }
 }
 
 listen_socket::~listen_socket()
@@ -74,7 +81,7 @@ listen_socket &listen_socket::accept(connected_socket &socket)
 
 listen_socket &listen_socket::accept(connected_socket &socket, address &address)
 {
-  address.reserve(d_local_address.size());
+  address.resize(d_local_address.size());
   socklen_t addressLength = address.capacity();
 
   int fd = ::accept(d_fd, address.native(), &addressLength);
