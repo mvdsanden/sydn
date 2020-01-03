@@ -7,6 +7,7 @@ syd_add_library(
   ipv4_address
   unix_address
   connected_socket
+  listen_socket
   DEPENDENCIES
   sydmem
   GSL)

@@ -9,8 +9,9 @@
 
 #include <cassert>
 #include <cstring>
-
+#include <fcntl.h>
 #include <future>
+#include <sys/resource.h>
 
 using namespace syd;
 
@@ -135,6 +136,21 @@ bool compareAddress(net::address const &lhs, net::address const &rhs)
   return 0 == std::memcmp(lhs.native(), rhs.native(), size);
 }
 
+size_t countFileDescriptorsInUse()
+{
+  size_t count = 0;
+
+  rlimit limit;  
+  int res = getrlimit(RLIMIT_NOFILE, &limit);
+  assert(0 == res);
+
+  for (int i = 0; i < limit.rlim_max; ++i) {
+    count += (fcntl(i, F_GETFD) != -1 ? 1 : 0);
+  }
+
+  return count;
+}
+
 TEST(NetConnectedSocket, Construction)
 {
   net::address      serverAddress;
@@ -151,6 +167,27 @@ TEST(NetConnectedSocket, Construction)
   EXPECT_TRUE(compareAddress(serverReportedAddress, localAddress))
       << "serverReportedAddress=" << serverReportedAddress
       << ", local_address()=" << localAddress;  
+}
+
+TEST(NetConnectedSocket, Destruction)
+{
+  size_t fdCount = 0;
+  size_t fdCount0 = countFileDescriptorsInUse();
+  
+  {
+    net::address      serverAddress;
+    std::future<net::ipv4_address> serverResult =
+        createAcceptServer(&serverAddress);
+
+    fdCount = countFileDescriptorsInUse();
+    
+    net::connected_socket socket(net::type::Stream, serverAddress);
+    EXPECT_TRUE(socket) << socket.error().message();
+
+    EXPECT_GT(countFileDescriptorsInUse(), fdCount);
+  }
+
+  EXPECT_EQ(countFileDescriptorsInUse(), fdCount0);
 }
 
 TEST(NetConnectedSocket, ConstructionLocalAddress)

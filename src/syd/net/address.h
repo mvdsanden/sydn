@@ -38,13 +38,17 @@ inline bool operator!=(int lhs, const address_family &rhs)
 {
   return lhs != static_cast<int>(rhs);
 }
-  
+
 class address
 {
+  // CLASS DATA
   static const size_t c_sdoSize = 32;
+
+  // DATA
   mem::sdo<c_sdoSize> d_data;
 
 public:
+  // MANIPULATORS
   /**
    * Allocate the specified 'size'.
    *
@@ -54,6 +58,18 @@ public:
   void resize(size_t size);
 
   /**
+   * Reserve at least the specified 'capacity'.
+   */
+  void reserve(size_t capacity);
+  
+  /**
+   * Clear the address. After this its size is zero. Note that this will not
+   * deallocate any reserved memory space.
+   */
+  void clear();
+  
+  // ACCESSORS
+  /**
    * Return the address family or Unspecified when size is zero.
    */
   int family() const;
@@ -61,42 +77,57 @@ public:
   /**
    * Return the size of the address buffer.
    */
-  size_t size() const { return d_data.size(); }
+  size_t size() const;
 
   /**
    * Return the capacity of the address buffer.
    */
-  size_t capacity() const { return d_data.capacity(); }
+  size_t capacity() const;
 
   /**
    * Return a pointer to the native address buffer.
    */
-  sockaddr const *native() const
-  {
-    return d_data.size() != 0
-               ? reinterpret_cast<sockaddr const *>(d_data.data())
-               : nullptr;
-  }
+  sockaddr const *native() const;
 
   /**
    * Return a pointer to the native address buffer.
    */
-  sockaddr *native()
-  {
-    return d_data.size() != 0 ? reinterpret_cast<sockaddr *>(d_data.data())
-                              : nullptr;
-  }
+  sockaddr *native();
 
-  bool operator==(std::nullptr_t) const
-  {
-    return family() != address_family::Unspecified;
-  }
+  bool operator==(std::nullptr_t) const;
 
-  bool operator!=(std::nullptr_t) const
-  {
-    return family() != address_family::Unspecified;
-  }
+  bool operator!=(std::nullptr_t) const;
 };
+
+// ------------------------------ INLINE METHODS ------------------------------
+
+inline size_t address::size() const { return d_data.size(); }
+
+inline size_t address::capacity() const { return d_data.capacity(); }
+
+inline sockaddr const *address::native() const
+{
+  return d_data.size() != 0 ? reinterpret_cast<sockaddr const *>(d_data.data())
+                            : nullptr;
+}
+
+inline sockaddr *address::native()
+{
+  return d_data.size() != 0 ? reinterpret_cast<sockaddr *>(d_data.data())
+                            : nullptr;
+}
+
+inline bool address::operator==(std::nullptr_t) const
+{
+  return family() != address_family::Unspecified;
+}
+
+inline bool address::operator!=(std::nullptr_t) const
+{
+  return family() != address_family::Unspecified;
+}
+
+// ---------------------------- NON-MEMBER METHODS ----------------------------
 
 std::ostream &operator<<(std::ostream &stream, address const &value);
 
@@ -109,7 +140,7 @@ std::ostream &operator<<(std::ostream &stream, address const &value);
 //     std::remove_pointer<T>::type>::value, "address is not convertable to
 //     return type"); return *reinterpret_cast<T*>(&value);
 // }
-  
+
 } // namespace net
 } // namespace syd
 

@@ -23,6 +23,28 @@ TEST(NetAddress, Resize)
   EXPECT_EQ(address.family(), net::address_family::Unspecified);
 }
 
+TEST(NetAddress, Reserve)
+{
+  net::address address;
+  address.reserve(32);
+  EXPECT_GE(address.capacity(), 32);
+}
+
+TEST(NetAddress, Clear)
+{
+  net::address address;
+  address.resize(sizeof(sockaddr_in));
+
+  auto addr = reinterpret_cast<sockaddr_in *>(address.native());
+  addr->sin_family = AF_INET;
+  addr->sin_port = htons(12345);
+
+  EXPECT_NE(address.family(), net::address_family::Unspecified);
+
+  address.clear();
+  EXPECT_EQ(address.family(), net::address_family::Unspecified);
+}
+
 TEST(NetAddress, SetAddressNatively)
 {
   net::address address;

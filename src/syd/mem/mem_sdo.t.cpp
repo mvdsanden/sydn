@@ -38,6 +38,24 @@ TEST(SdoTest, ResizeMinusOne)
   EXPECT_EQ(s - 1, obj.size());
 }
 
+TEST(SdoTest, ReservePlusOne)
+{
+  const size_t s = 16;
+  sdo<s>       obj(s);
+  obj.reserve(s + 1);
+  EXPECT_GE(obj.capacity(), s + 1);
+  EXPECT_EQ(s, obj.size());
+}
+
+TEST(SdoTest, ReserveMinusOne)
+{
+  const size_t s = 16;
+  sdo<s>       obj(s);
+  obj.reserve(s - 1);
+  EXPECT_LE(s - 1, obj.capacity());
+  EXPECT_EQ(s, obj.size());
+}
+
 TEST(SdoTest, NoReallocWhenResizeSmallerThanMinSize)
 {
   const size_t s = 16;

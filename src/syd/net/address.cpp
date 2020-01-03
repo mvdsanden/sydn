@@ -30,6 +30,16 @@ void address::resize(size_t size)
   d_data.resize(size);
 }
 
+void address::reserve(size_t capacity)
+{
+  d_data.reserve(capacity);
+}
+  
+void address::clear()
+{
+  d_data.resize(0);
+}
+  
 int address::family() const
 {
   return size() != 0 ? native()->sa_family : AF_UNSPEC;

@@ -18,6 +18,8 @@ namespace net {
  */
 class connected_socket
 {
+  friend class listen_socket;
+  
   mutable std::error_condition d_last_error;
   size_t                       d_last_bytes = 0;
   int                          d_fd         = -1;
@@ -25,10 +27,16 @@ class connected_socket
   bool                         d_would_have_blocked : 1;
 
   bool check_result(int result_code) const;
-
+  void initialize_from_fd(int fd);
+  
 public:
   // CREATORS
 
+  /**
+   * Create an uninitialized (and not yet connected) socket.
+   */
+  connected_socket();
+  
   /**
    * Create a socket with the specified 'type' connected to the specified
    * 'remote_address' and optionally bound to the specified 'local_address'.
@@ -37,6 +45,8 @@ public:
                    address const &remote_address,
                    address const &local_address = address());
 
+  ~connected_socket();
+  
   // MANIPULATORS
 
   /**
@@ -46,7 +56,7 @@ public:
    * condition.
    */
   connected_socket &write(gsl::span<const char> data);
-
+  
   /**
    * Read the specified 'data' from the socket. See 'read_count' for the number
    * of bytes read. If an error occurs the socket will compare to 'false' after

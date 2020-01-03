@@ -74,14 +74,26 @@ public:
       return;
     }
 
+    reserve(size);
+  }
+
+  /**
+   * Reserve the specified 'capacity'.
+   */
+  void reserve(size_t capacity)
+  {
+    if (d_capacity >= capacity) {
+      return;
+    }
+    
     if (d_capacity > _smallSize) {
       delete[] d_ptr;
     }
 
-    d_capacity = d_size;
-    d_ptr      = new char[d_capacity];
+    d_capacity = capacity;
+    d_ptr      = new char[d_capacity];    
   }
-
+  
   size_t size() const { return d_size; }
   size_t capacity() const { return d_capacity; }
 

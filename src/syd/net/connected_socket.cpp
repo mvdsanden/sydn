@@ -8,6 +8,7 @@
 namespace syd {
 namespace net {
 
+// PRIVATE MANIPULATORS
 bool connected_socket::check_result(int result_code) const
 {
   if (-1 == result_code) {
@@ -17,6 +18,27 @@ bool connected_socket::check_result(int result_code) const
   }
 
   return true;
+}
+
+void connected_socket::initialize_from_fd(int fd)
+{
+  if (-1 != d_fd) {
+    close(d_fd);
+  }
+
+  d_last_error.clear();
+  d_last_bytes = 0;
+  d_fd = fd;
+  d_okay = true;
+  d_would_have_blocked = false;
+}
+
+// CREATORS
+connected_socket::connected_socket()
+    : d_okay(false)
+    , d_would_have_blocked(false)
+{
+  // NOTHING TO DO.
 }
 
 connected_socket::connected_socket(type           type,
@@ -44,6 +66,14 @@ connected_socket::connected_socket(type           type,
   }
 }
 
+connected_socket::~connected_socket()
+{
+  if (-1 != d_fd) {
+    close(d_fd);
+  }
+}
+
+// MANIPULATORS
 connected_socket &connected_socket::write(gsl::span<const char> data)
 {
   int res = ::write(d_fd, data.data(), data.size());
@@ -81,6 +111,7 @@ connected_socket &connected_socket::read(gsl::span<char> data)
   return *this;
 }
 
+// ACCESSORS
 address connected_socket::local_address() const
 {
   address localAddress;
