@@ -164,3 +164,16 @@ int main(int argc, char *argv[]) {
 
 * For non-blocking add `bool socket::would_block() const`?
 
+# Initialization
+
+* Initialize git submodules
+
+# Building
+
+* Create a build directory
+* Run cmake
+* Run make
+
+# Testing
+
+* Run ctest in the build directory

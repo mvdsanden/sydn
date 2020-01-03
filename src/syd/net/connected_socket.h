@@ -1,42 +1,49 @@
-// connected_socket.h -*-c++-*-
+// connected_socket.h                                                 -*-c++-*-
 #ifndef INCLUDED_SYD_NET_CONNECTED_SOCKET
 #define INCLUDED_SYD_NET_CONNECTED_SOCKET
 
 #include <address.h>
 #include <socket.h>
 
-#include <cstddef>
-
-#include <system_error>
-
 #include <gsl/span>
+
+#include <cstddef>
+#include <system_error>
 
 namespace syd {
 namespace net {
 
+/**
+ * A socked used for connected protocols, like stream sockets.
+ */
 class connected_socket
 {
-  bool                 d_okay             = true;
-  bool                 d_wouldBlock       = false;
-  int                  d_fd               = -1;
-  size_t               d_lastBytesWritten = 0;
-  size_t               d_lastBytesRead    = 0;
+  mutable std::error_condition d_last_error;
+  size_t                       d_last_bytes = 0;
+  int                          d_fd         = -1;
+  mutable bool                 d_okay : 1;
+  bool                         d_would_have_blocked : 1;
 
-  mutable std::error_condition d_lastError;
+  bool check_result(int result_code) const;
 
 public:
-  /**
-   * Create a socket with the specified 'type' connected to the specified
-   * 'remoteAddress' and optionally bound to the specified 'localAddress'.
-   */
-  connected_socket(type           type,
-                   address const &remoteAddress,
-                   address const &localAddress = address());
+  // CREATORS
 
   /**
-   * Write the specified 'data' to the socket. See 'write_count' for the number
-   * of bytes written. If an error occurs the socket will compare to 'false'
-   * after this call and 'error' will return an appropriate error condition.
+   * Create a socket with the specified 'type' connected to the specified
+   * 'remote_address' and optionally bound to the specified 'local_address'.
+   */
+  connected_socket(type           type,
+                   address const &remote_address,
+                   address const &local_address = address());
+
+  // MANIPULATORS
+
+  /**
+   * Write the specified 'data' to the socket. See 'last_bytes' for the
+   * number of bytes written. If an error occurs the socket will compare to
+   * 'false' after this call and 'error' will return an appropriate error
+   * condition.
    */
   connected_socket &write(gsl::span<const char> data);
 
@@ -47,15 +54,22 @@ public:
    */
   connected_socket &read(gsl::span<char> data);
 
+  // ACCESSORS
+
   /**
    * Return 'false' when an error has occured, 'true' otherwise.
    */
   operator bool() const;
 
   /**
-   * Return the number of bytes wittten.
+   * Return 'false' when an error has occured, 'true' otherwise.
    */
-  size_t write_count() const;
+  bool okay() const;
+
+  /**
+   * Return the last number of bytes wittten or read.
+   */
+  size_t last_bytes() const;
 
   /**
    * Return the socket local address.
@@ -65,13 +79,31 @@ public:
   /**
    * Return 'true' if the previous 'write' or 'read' would have blocked.
    */
-  bool would_block() const;
-  
+  bool would_have_blocked() const;
+
   /**
    * Return the current error condition.
    */
   std::error_condition const &error() const;
 };
+
+// ------------------------------ INLINE METHODS ------------------------------
+
+inline connected_socket::operator bool() const { return d_okay; }
+
+inline bool connected_socket::okay() const { return d_okay; }
+
+inline size_t connected_socket::last_bytes() const { return d_last_bytes; }
+
+inline bool connected_socket::would_have_blocked() const
+{
+  return d_would_have_blocked;
+}
+
+inline std::error_condition const &connected_socket::error() const
+{
+  return d_last_error;
+}
 
 } // namespace net
 } // namespace syd
