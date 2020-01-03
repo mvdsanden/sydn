@@ -45,9 +45,15 @@ public:
                    address const &remote_address,
                    address const &local_address = address());
 
+  connected_socket(connected_socket const &) = delete;
+  connected_socket(connected_socket &&) = delete;
+  
   ~connected_socket();
   
   // MANIPULATORS
+
+  connected_socket &operator=(connected_socket const &) = delete;
+  connected_socket &operator=(connected_socket &&) = delete;
 
   /**
    * Write the specified 'data' to the socket. See 'last_bytes' for the

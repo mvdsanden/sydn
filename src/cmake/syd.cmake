@@ -35,3 +35,38 @@ function(syd_add_library)
   
   
 endfunction(syd_add_library)
+
+function(syd_add_task)
+  set(options "")
+  set(oneValueArgs NAME)
+  set(multiValueArgs COMPONENTS DEPENDENCIES)
+  cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+
+  set(target "${ARGS_NAME}.tsk")
+  
+  set(sources "")
+  
+  foreach(component ${ARGS_COMPONENTS})    
+    set(source "${component}.cpp")
+    message("Found source ${source}")
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${source}")
+      list(APPEND sources "${CMAKE_CURRENT_SOURCE_DIR}/${source}")
+    endif()
+  endforeach(component)
+
+  add_executable(${target} ${sources})
+  target_include_directories (${target} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+  target_link_libraries(${target} ${ARGS_DEPENDENCIES})
+
+  # foreach(component ${ARGS_COMPONENTS})
+  #   set(source "${CMAKE_CURRENT_SOURCE_DIR}/${component}.t.cpp")
+  #   if(EXISTS ${source})
+  #     set(target "${component}.t.tsk")
+  #     add_executable(${target} ${source})
+  #     target_include_directories(${target} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+  #     target_link_libraries(${target} ${target} gtest_main)
+  #     add_test(NAME ${source} COMMAND ${target})
+  #   endif()
+  # endforeach(component) 
+  
+endfunction(syd_add_task)

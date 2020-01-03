@@ -8,3 +8,4 @@ include(syd)
 
 add_subdirectory(syd)
 add_subdirectory(thirdparty)
+add_subdirectory(examples)

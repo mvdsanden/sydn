@@ -1,4 +1,4 @@
-// listen_socket.t.cpp -*-c++-*-
+// listen_socket.t.cpp                                                -*-c++-*-
 #include <listen_socket.h>
 
 #include <ipv4_address.h>
@@ -99,7 +99,6 @@ TEST(NetListenSocket, AcceptWithAddress)
   EXPECT_TRUE(socket) << socket.error().message();
 
   net::address serverAddress = socket.local_address();
-  std::cout << "Server address: " << serverAddress << "\n";
   
   auto connectFuture =
       std::async(std::launch::async, [serverAddress]() {
@@ -115,4 +114,26 @@ TEST(NetListenSocket, AcceptWithAddress)
   EXPECT_TRUE(socket) << socket.error().message();
   EXPECT_TRUE(clientSocket) << clientSocket.error().message();
   EXPECT_TRUE(compareAddress(connectFuture.get(), clientAddress));
+}
+
+TEST(NetListenSocket, AcceptWithoutAddress)
+{
+  net::ipv4_address localAddress("127.0.0.1", 0);
+
+  net::listen_socket socket(net::type::Stream, localAddress);
+  EXPECT_TRUE(socket) << socket.error().message();
+
+  net::address serverAddress = socket.local_address();
+  
+  auto connectFuture =
+      std::async(std::launch::async, [serverAddress]() {
+        net::connected_socket remoteSocket(net::type::Stream, serverAddress);
+        EXPECT_TRUE(remoteSocket) << remoteSocket.error().message();
+      });
+
+  net::connected_socket clientSocket;
+
+  socket.accept(clientSocket);
+  EXPECT_TRUE(socket) << socket.error().message();
+  EXPECT_TRUE(clientSocket) << clientSocket.error().message();
 }
