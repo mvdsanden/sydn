@@ -41,8 +41,15 @@ public:
 
   // MANIPULATORS
 
+  /**
+   * Accept the next pending connection into the specified 'socket'.
+   */
   listen_socket &accept(connected_socket &socket);
 
+  /**
+   * Accept the next pending connection into the specified 'socket' and set the
+   * specified 'address' to the remote address of the connection.
+   */
   listen_socket &accept(connected_socket &socket, address &address);
 
   // ACCESSORS
