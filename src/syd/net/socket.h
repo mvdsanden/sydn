@@ -15,6 +15,11 @@ enum class type : int
   Stream = SOCK_STREAM
 };
 
+enum class family : int
+{
+  Stream = SOCK_STREAM
+};
+  
   
 } // namespace net
 } // namespace syd
