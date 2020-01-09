@@ -28,6 +28,27 @@ class EchoServer
       }
       std::cout << "Ended session with: " << d_address << ".\n";
     }
+
+    // void run()
+    // {
+    //   std::cout << "Started session with: " << d_address << ".\n";
+
+    //   auto read = syd::make_connected_reader(d_socket);
+    //   auto write = syd::make_connected_writer(d_socket);
+      
+    //   char buffer[128];
+
+    //   while (read(buffer) && 0 != read.last_bytes()) {
+    //     write(gsl::make_span(buffer, read.last_bytes()));
+    //   }
+
+    //   // TODO:
+    //   // while (syd::net::copy(read, write, 128));
+      
+    //   std::cout << "Ended session with: " << d_address << ".\n";
+    // }
+
+
   };
 
   // DATA
@@ -45,6 +66,8 @@ public:
     syd::net::listen_socket listenSocket(syd::net::type::Stream,
                                          d_serverAddress);
 
+    //    auto accepter = syd::net::make_accepter(listenSocket);
+    
     if (!listenSocket) {
       std::cerr << listenSocket.error().message();
       return 1;
@@ -68,6 +91,8 @@ public:
 // GLOBAL METDHODS
 int main(int argc, char **argv)
 {
+  std::cout << "Size: " << sizeof(syd::net::connected_socket) << ".\n";
+
   EchoServer server;
   return server.run();
 }

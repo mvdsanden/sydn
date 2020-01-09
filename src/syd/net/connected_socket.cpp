@@ -12,7 +12,6 @@ namespace net {
 bool connected_socket::check_result(int result_code) const
 {
   if (-1 == result_code) {
-    d_okay       = false;
     d_last_error = std::generic_category().default_error_condition(errno);
     return false;
   }
@@ -29,23 +28,14 @@ void connected_socket::initialize_from_fd(int fd)
   d_last_error.clear();
   d_last_bytes = 0;
   d_fd = fd;
-  d_okay = true;
-  d_would_have_blocked = false;
 }
 
 // CREATORS
-connected_socket::connected_socket()
-    : d_okay(false)
-    , d_would_have_blocked(false)
-{
-  // NOTHING TO DO.
-}
+connected_socket::connected_socket() = default;
 
 connected_socket::connected_socket(type           type,
                                    address const &remote_address,
                                    address const &local_address)
-    : d_okay(true)
-    , d_would_have_blocked(false)
 {
   d_fd = ::socket(remote_address.family(), static_cast<int>(type), 0);
   if (!check_result(d_fd)) {
@@ -77,17 +67,11 @@ connected_socket::~connected_socket()
 connected_socket &connected_socket::write(gsl::span<const char> data)
 {
   int res = ::write(d_fd, data.data(), data.size());
-  if (-1 == res) {
-    if (EWOULDBLOCK != errno && EAGAIN != errno) {
-      d_okay       = false;
-      d_last_error = std::generic_category().default_error_condition(errno);
-      return *this;
-    }
-
-    d_would_have_blocked = true;
-    res                  = 0;
+  if (!check_result(res)) {
+    res = 0;
   }
 
+  assert(res >= 0);
   d_last_bytes = static_cast<size_t>(res);
 
   return *this;
@@ -96,16 +80,11 @@ connected_socket &connected_socket::write(gsl::span<const char> data)
 connected_socket &connected_socket::read(gsl::span<char> data)
 {
   int res = ::read(d_fd, data.data(), data.size());
-  if (-1 == res) {
-    if (EWOULDBLOCK != errno && EAGAIN != errno) {
-      d_okay       = false;
-      d_last_error = std::generic_category().default_error_condition(errno);
-      return *this;
-    }
-
+  if (!check_result(res)) {
     res = 0;
   }
 
+  assert(res >= 0);
   d_last_bytes = static_cast<size_t>(res);
 
   return *this;

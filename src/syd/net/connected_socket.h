@@ -7,6 +7,7 @@
 
 #include <gsl/span>
 
+#include <cassert>
 #include <cstddef>
 #include <system_error>
 
@@ -23,8 +24,6 @@ class connected_socket
   mutable std::error_condition d_last_error;
   size_t                       d_last_bytes = 0;
   int                          d_fd         = -1;
-  mutable bool                 d_okay : 1;
-  bool                         d_would_have_blocked : 1;
 
   bool check_result(int result_code) const;
   void initialize_from_fd(int fd);
@@ -105,15 +104,21 @@ public:
 
 // ------------------------------ INLINE METHODS ------------------------------
 
-inline connected_socket::operator bool() const { return d_okay; }
+inline connected_socket::operator bool() const { return okay(); }
 
-inline bool connected_socket::okay() const { return d_okay; }
+inline bool connected_socket::okay() const {
+  return !d_last_error && !would_have_blocked();
+}
 
-inline size_t connected_socket::last_bytes() const { return d_last_bytes; }
+inline size_t connected_socket::last_bytes() const
+{
+  return d_last_bytes;
+}
 
 inline bool connected_socket::would_have_blocked() const
 {
-  return d_would_have_blocked;
+  return d_last_error == std::errc::operation_would_block ||
+         d_last_error == std::errc::resource_unavailable_try_again;
 }
 
 inline std::error_condition const &connected_socket::error() const
