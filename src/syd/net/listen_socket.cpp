@@ -14,7 +14,6 @@ namespace net {
 bool listen_socket::check_result(int result_code) const
 {
   if (-1 == result_code) {
-    d_okay       = false;
     d_last_error = std::generic_category().default_error_condition(errno);
     return false;
   }
@@ -24,8 +23,6 @@ bool listen_socket::check_result(int result_code) const
   
 // CREATORS
 listen_socket::listen_socket(type type, address const &local_address)
-    : d_okay(true)
-    , d_would_have_blocked(false)
 {
   assert(local_address != nullptr);
   
@@ -65,12 +62,6 @@ listen_socket &listen_socket::accept(connected_socket &socket)
   int fd = ::accept(d_fd, nullptr, nullptr);
 
   if (-1 == fd) {
-    if (EWOULDBLOCK == errno || EAGAIN == errno) {
-      d_would_have_blocked = true;
-      return *this;
-    }
-
-    d_okay       = false;
     d_last_error = std::generic_category().default_error_condition(errno);
     return *this;
   }
@@ -86,12 +77,6 @@ listen_socket &listen_socket::accept(connected_socket &socket, address &address)
 
   int fd = ::accept(d_fd, address.native(), &addressLength);
   if (-1 == fd) {
-    if (EWOULDBLOCK == errno || EAGAIN == errno) {
-      d_would_have_blocked = true;
-      return *this;
-    }
-
-    d_okay       = false;
     d_last_error = std::generic_category().default_error_condition(errno);
     return *this;
   }

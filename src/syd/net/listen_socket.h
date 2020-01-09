@@ -22,8 +22,6 @@ class listen_socket
   mutable std::error_condition d_last_error;
   address                      d_local_address;
   int                          d_fd = -1;
-  mutable bool                 d_okay : 1;
-  bool                         d_would_have_blocked : 1;
 
   // PRIVATE MANIPULATORS
   bool check_result(int result_code) const;
@@ -82,15 +80,18 @@ public:
 
 // ------------------------------ INLINE METHODS ------------------------------
 
-inline listen_socket::operator bool() const { return d_okay; }
+inline listen_socket::operator bool() const { return okay(); }
 
-inline bool listen_socket::okay() const { return d_okay; }
+inline bool listen_socket::okay() const {
+  return !d_last_error && !would_have_blocked();
+}
 
- inline address listen_socket::local_address() const { return d_local_address; }
+inline address listen_socket::local_address() const { return d_local_address; }
  
 inline bool listen_socket::would_have_blocked() const
 {
-  return d_would_have_blocked;
+  return d_last_error == std::errc::operation_would_block ||
+         d_last_error == std::errc::resource_unavailable_try_again;
 }
 
 inline std::error_condition const &listen_socket::error() const
