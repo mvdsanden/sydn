@@ -20,11 +20,20 @@ class EchoServer
     void run()
     {
       std::cout << "Started session with: " << d_address << ".\n";
+      std::error_condition result;
+      size_t bytes;
+      
       char buffer[128];
-      while (d_socket.read(buffer) &&
-             0 != d_socket.last_bytes()) {
-        d_socket.write(
-            gsl::make_span(buffer, d_socket.last_bytes()));
+      while (true) {
+        std::tie(result, bytes) = d_socket.read(buffer);
+        if (!result) {
+          break;
+        }
+
+        std::tie(result, bytes) = d_socket.write(gsl::make_span(buffer, bytes));
+        if (!result) {
+          break;
+        }
       }
       std::cout << "Ended session with: " << d_address << ".\n";
     }
@@ -58,13 +67,16 @@ public:
   // CREATORS
   EchoServer()
       : d_serverAddress("127.0.0.1", 0)
-  {}
+  {
+  }
 
   // MANIPULATORS
   int run()
   {
     syd::net::listen_socket listenSocket(syd::net::type::Stream,
                                          d_serverAddress);
+
+    //listenSocket.listen_to(syd::net::type::Stream, d_serverAddress);
 
     //    auto accepter = syd::net::make_accepter(listenSocket);
     

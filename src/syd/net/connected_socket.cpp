@@ -9,52 +9,9 @@ namespace syd {
 namespace net {
 
 // PRIVATE MANIPULATORS
-bool connected_socket::check_result(int result_code) const
-{
-  if (-1 == result_code) {
-    d_last_error = std::generic_category().default_error_condition(errno);
-    return false;
-  }
-
-  return true;
-}
-
-void connected_socket::initialize_from_fd(int fd)
-{
-  if (-1 != d_fd) {
-    close(d_fd);
-  }
-
-  d_last_error.clear();
-  d_last_bytes = 0;
-  d_fd = fd;
-}
 
 // CREATORS
 connected_socket::connected_socket() = default;
-
-connected_socket::connected_socket(type           type,
-                                   address const &remote_address,
-                                   address const &local_address)
-{
-  d_fd = ::socket(remote_address.family(), static_cast<int>(type), 0);
-  if (!check_result(d_fd)) {
-    return;
-  }
-
-  int res = 0;
-  if (local_address != nullptr) {
-    res = ::bind(d_fd, local_address.native(), local_address.size());
-    if (!check_result(res)) {
-      return;
-    }
-  }
-
-  res = ::connect(d_fd, remote_address.native(), remote_address.size());
-  if (!check_result(res)) {
-    return;
-  }
-}
 
 connected_socket::~connected_socket()
 {
@@ -64,30 +21,67 @@ connected_socket::~connected_socket()
 }
 
 // MANIPULATORS
-connected_socket &connected_socket::write(gsl::span<const char> data)
+std::error_condition connected_socket::connect(type           type,
+                                               address const &remote_address,
+                                               address const &local_address)
 {
-  int res = ::write(d_fd, data.data(), data.size());
-  if (!check_result(res)) {
-    res = 0;
+  if (-1 != d_fd) {
+    close(d_fd);
+    d_fd = -1;
+  }
+  
+  d_fd = ::socket(remote_address.family(), static_cast<int>(type), 0);
+  if (-1 == d_fd) {
+    return std::generic_category().default_error_condition(errno);
+  }
+  
+  int res = 0;
+  if (local_address != nullptr) {
+    res = ::bind(d_fd, local_address.native(), local_address.size());
+    if (-1 == res) {
+      return std::generic_category().default_error_condition(errno);
+    }
   }
 
-  assert(res >= 0);
-  d_last_bytes = static_cast<size_t>(res);
+  res = ::connect(d_fd, remote_address.native(), remote_address.size());
+  if (-1 == res) {
+    return std::generic_category().default_error_condition(errno);
+  }
 
-  return *this;
+  return std::error_condition(); // success
 }
 
-connected_socket &connected_socket::read(gsl::span<char> data)
+void connected_socket::import(int fd)
 {
-  int res = ::read(d_fd, data.data(), data.size());
-  if (!check_result(res)) {
-    res = 0;
+  if (-1 != d_fd) {
+    close(d_fd);
+  }
+
+  d_fd = fd;
+}
+  
+std::pair<std::error_condition, size_t>
+connected_socket::write(gsl::span<const char> data)
+{
+  int res = ::write(d_fd, data.data(), data.size());
+  if (-1 == res) {
+    return {std::generic_category().default_error_condition(errno), 0};
   }
 
   assert(res >= 0);
-  d_last_bytes = static_cast<size_t>(res);
+  return {std::error_condition(), static_cast<size_t>(res)};
+}
 
-  return *this;
+std::pair<std::error_condition, size_t>
+connected_socket::read(gsl::span<char> data)
+{
+  int res = ::read(d_fd, data.data(), data.size());
+  if (-1 == res) {
+    return {std::generic_category().default_error_condition(errno), 0};
+  }
+
+  assert(res >= 0);
+  return {std::error_condition(), static_cast<size_t>(res)};
 }
 
 // ACCESSORS
@@ -101,7 +95,7 @@ address connected_socket::local_address() const
     socklen_t len = localAddress.capacity();
     int       res = getsockname(d_fd, localAddress.native(), &len);
 
-    if (!check_result(res)) {
+    if (-1 == res) {
       localAddress = address();
       break;
     }

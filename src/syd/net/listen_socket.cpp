@@ -66,7 +66,7 @@ listen_socket &listen_socket::accept(connected_socket &socket)
     return *this;
   }
 
-  socket.initialize_from_fd(fd);
+  socket.import(fd);
   return *this;
 }
 
@@ -81,7 +81,7 @@ listen_socket &listen_socket::accept(connected_socket &socket, address &address)
     return *this;
   }
 
-  socket.initialize_from_fd(fd);
+  socket.import(fd);
   address.resize(addressLength);
 
   if (addressLength > address.capacity()) {

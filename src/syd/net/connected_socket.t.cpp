@@ -151,18 +151,24 @@ size_t countFileDescriptorsInUse()
   return count;
 }
 
+TEST(NetConnectedSocket, Sanity1)
+{
+  EXPECT_TRUE(!std::error_condition());
+}
+
 TEST(NetConnectedSocket, Construction)
 {
   net::address      serverAddress;
   std::future<net::ipv4_address> serverResult =
       createAcceptServer(&serverAddress);
 
-  net::connected_socket socket(net::type::Stream, serverAddress);
-  EXPECT_TRUE(socket) << socket.error().message();
+  net::connected_socket socket;
+  auto result = socket.connect(net::type::Stream, serverAddress);
+  EXPECT_FALSE(result) << result.message();
 
   net::address serverReportedAddress = serverResult.get();
   net::address localAddress          = socket.local_address();
-  EXPECT_NE(localAddress, nullptr) << socket.error().message();
+  EXPECT_NE(localAddress, nullptr);
 
   EXPECT_TRUE(compareAddress(serverReportedAddress, localAddress))
       << "serverReportedAddress=" << serverReportedAddress
@@ -181,8 +187,9 @@ TEST(NetConnectedSocket, Destruction)
 
     fdCount = countFileDescriptorsInUse();
     
-    net::connected_socket socket(net::type::Stream, serverAddress);
-    EXPECT_TRUE(socket) << socket.error().message();
+    net::connected_socket socket;
+    auto result = socket.connect(net::type::Stream, serverAddress);
+    EXPECT_FALSE(result) << result.message();
 
     EXPECT_GT(countFileDescriptorsInUse(), fdCount);
   }
@@ -196,14 +203,15 @@ TEST(NetConnectedSocket, ConstructionLocalAddress)
   std::future<net::ipv4_address> serverResult =
       createAcceptServer(&serverAddress);
 
-  net::connected_socket socket(
+  net::connected_socket socket;
+  auto                  result = socket.connect(
       net::type::Stream, serverAddress, net::ipv4_address("127.0.0.1", 0));
 
-  EXPECT_TRUE(socket) << socket.error().message();
+  EXPECT_FALSE(result) << result.message();
 
   net::address serverReportedAddress = serverResult.get();
   net::address localAddress          = socket.local_address();
-  EXPECT_TRUE(socket) << socket.error().message();
+  EXPECT_NE(localAddress, nullptr);
 
   EXPECT_TRUE(compareAddress(serverReportedAddress, localAddress))
       << "serverReportedAddress=" << serverReportedAddress
@@ -216,11 +224,16 @@ TEST(NetConnectedSocket, WriteString)
   std::future<void> serverResult =
       createServerExpectString("This is a test", &serverAddress);
 
-  net::connected_socket socket(net::type::Stream, serverAddress);
-  EXPECT_TRUE(socket) << socket.error().message();
+  net::connected_socket socket;
+  auto result = socket.connect(net::type::Stream, serverAddress);
+  EXPECT_FALSE(result) << result.message();
 
-  socket.write(std::string("This is a test"));
-  EXPECT_TRUE(socket) << socket.error().message();
+  std::error_condition error;
+  size_t count;
+
+  tie(error, count) = socket.write(std::string("This is a test"));
+  EXPECT_FALSE(error) << error.message();
+  EXPECT_EQ(count, 14);
 }
 
 TEST(NetConnectedSocket, WriteChars)
@@ -229,11 +242,16 @@ TEST(NetConnectedSocket, WriteChars)
   std::future<void> serverResult =
       createServerExpectString("This is a test", &serverAddress);
 
-  net::connected_socket socket(net::type::Stream, serverAddress);
-  EXPECT_TRUE(socket) << socket.error().message();
-  
-  socket.write("This is a test");
-  EXPECT_TRUE(socket) << socket.error().message();
+  net::connected_socket socket;
+  auto result = socket.connect(net::type::Stream, serverAddress);
+  EXPECT_FALSE(result) << result.message();
+
+  std::error_condition error;
+  size_t count;
+
+  tie(error, count) = socket.write("This is a test");
+  EXPECT_FALSE(error) << error.message();
+  EXPECT_EQ(count, 15);
 }
 
 TEST(NetConnectedSocket, WriteSpan)
@@ -242,11 +260,16 @@ TEST(NetConnectedSocket, WriteSpan)
   std::future<void> serverResult =
       createServerExpectString("This ", &serverAddress);
 
-  net::connected_socket socket(net::type::Stream, serverAddress);
-  EXPECT_TRUE(socket) << socket.error().message();
-  
-  socket.write(gsl::make_span("This is a test", 5));
-  EXPECT_TRUE(socket) << socket.error().message();
+  net::connected_socket socket;
+  auto result = socket.connect(net::type::Stream, serverAddress);
+  EXPECT_FALSE(result) << result.message();
+
+  std::error_condition error;
+  size_t count;
+
+  tie(error, count) = socket.write(gsl::make_span("This is a test", 5));
+  EXPECT_FALSE(error) << error.message();
+  EXPECT_EQ(count, 5);
 }
 
 TEST(NetConnectedSocket, ReadBuffer)
@@ -255,13 +278,18 @@ TEST(NetConnectedSocket, ReadBuffer)
   std::future<void> serverResult =
       createServerWriteString("This is a test", &serverAddress);
 
-  net::connected_socket socket(net::type::Stream, serverAddress);
-  EXPECT_TRUE(socket) << socket.error().message();
+  net::connected_socket socket;
+  auto result = socket.connect(net::type::Stream, serverAddress);
+  EXPECT_FALSE(result) << result.message();
+
+  std::error_condition error;
+  size_t count;
   
   char                  buffer[1024] = {0};
-  socket.read(buffer);
-  EXPECT_TRUE(socket) << socket.error().message();
+  tie(error, count) = socket.read(buffer);
+  EXPECT_FALSE(error) << error.message();
 
+  EXPECT_EQ(count, 14);
   EXPECT_STREQ(buffer, "This is a test");
 }
 
@@ -271,12 +299,17 @@ TEST(NetConnectedSocket, ReadVector)
   std::future<void> serverResult =
       createServerWriteString("This is a test", &serverAddress);
 
-  net::connected_socket socket(net::type::Stream, serverAddress);
-  EXPECT_TRUE(socket) << socket.error().message();
+  net::connected_socket socket;
+  auto result = socket.connect(net::type::Stream, serverAddress);
+  EXPECT_FALSE(result) << result.message();
+
+  std::error_condition error;
+  size_t count;
   
   std::vector<char> v(1024);
-  socket.read(v);
-  EXPECT_TRUE(socket) << socket.error().message();
+  tie(error, count) = socket.read(v);
+  EXPECT_FALSE(error) << error.message();
 
+  EXPECT_EQ(count, 14);
   EXPECT_STREQ(&*v.begin(), "This is a test");
 }
