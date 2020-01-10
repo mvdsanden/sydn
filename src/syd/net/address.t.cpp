@@ -76,10 +76,10 @@ TEST(NetAddress, PrintUnknown)
   address.resize(32);
 
   auto addr = reinterpret_cast<sockaddr_in *>(address.native());
-  addr->sin_family = 12345;
+  addr->sin_family = 192;
   
   std::ostringstream ss;
   ss << address;
 
-  EXPECT_EQ(ss.str(), "Unknown address family: 12345");  
+  EXPECT_EQ(ss.str(), "Unknown address family: 192");
 }
