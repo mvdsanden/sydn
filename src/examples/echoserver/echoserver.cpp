@@ -1,6 +1,8 @@
 // echoserver.cpp                                                     -*-c++-*-
 
 #include <listen_socket.h>
+#include <connected_reader.h>
+#include <connected_writer.h>
 #include <ipv4_address.h>
 
 #include <iostream>
@@ -20,44 +22,16 @@ class EchoServer
     void run()
     {
       std::cout << "Started session with: " << d_address << ".\n";
-      std::error_condition result;
-      size_t bytes;
+      
+      syd::net::connected_reader reader(d_socket);
+      syd::net::connected_writer writer(d_socket);
       
       char buffer[128];
-      while (true) {
-        std::tie(result, bytes) = d_socket.read(buffer);
-        if (!result) {
-          break;
-        }
-
-        std::tie(result, bytes) = d_socket.write(gsl::make_span(buffer, bytes));
-        if (!result) {
-          break;
-        }
+      while (reader.read(buffer) && writer.write(buffer, reader.last_bytes()) &&
+             0 != writer.last_bytes()) {
       }
       std::cout << "Ended session with: " << d_address << ".\n";
     }
-
-    // void run()
-    // {
-    //   std::cout << "Started session with: " << d_address << ".\n";
-
-    //   auto read = syd::make_connected_reader(d_socket);
-    //   auto write = syd::make_connected_writer(d_socket);
-      
-    //   char buffer[128];
-
-    //   while (read(buffer) && 0 != read.last_bytes()) {
-    //     write(gsl::make_span(buffer, read.last_bytes()));
-    //   }
-
-    //   // TODO:
-    //   // while (syd::net::copy(read, write, 128));
-      
-    //   std::cout << "Ended session with: " << d_address << ".\n";
-    // }
-
-
   };
 
   // DATA
@@ -86,7 +60,7 @@ public:
     }
 
     std::cout << "Echoserver running on: " << listenSocket.local_address()
-              << ".\n";
+              << "." << std::endl;
 
     while (true) {      
       auto pendingSession = std::make_unique<ClientSession>();

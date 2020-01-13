@@ -1,6 +1,13 @@
 // connected_socket.cpp                                               -*-c++-*-
 #include <connected_socket.h>
 
+/*
+ * Design decisions:
+ * * No error code or last read/write bytes as members: keep memory footprint as small as possible.
+ * * No exceptions.
+ *
+ */
+
 #include <cassert>
 #include <string>
 #include <unistd.h>
@@ -17,6 +24,7 @@ connected_socket::~connected_socket()
 {
   if (-1 != d_fd) {
     close(d_fd);
+    d_fd = -1;
   }
 }
 

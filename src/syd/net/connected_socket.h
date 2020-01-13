@@ -19,8 +19,8 @@ namespace net {
  */
 class connected_socket
 {
-  int                          d_fd         = -1;
-  
+  int d_fd = -1;
+
 public:
   // CREATORS
 
