@@ -20,6 +20,8 @@ class connected_writer
   Socket &                     d_socket;
   mutable std::error_condition d_last_error;
   size_t                       d_last_bytes = 0;
+
+  connected_writer &write(gsl::span<const char> data);
   
 public:
   // CREATORS
@@ -88,8 +90,8 @@ public:
  inline connected_writer &connected_writer::write(Args&&... args)//gsl::span<char> data)
  {
    //std::tie(d_last_error, d_last_bytes) = d_socket.write(data);
-   std::tie(d_last_error, d_last_bytes) = d_socket.write(gsl::make_span(std::forward<Args>(args)...));
-   return *this;
+   //std::tie(d_last_error, d_last_bytes) = d_socket.write(gsl::make_span(std::forward<Args>(args)...));
+   return write(gsl::make_span(std::forward<Args>(args)...));
  }
 
  inline connected_writer::operator bool() const { return okay(); }

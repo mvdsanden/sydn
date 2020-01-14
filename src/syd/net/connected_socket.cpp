@@ -68,29 +68,29 @@ void connected_socket::import(int fd)
   d_fd = fd;
 }
   
-std::pair<std::error_condition, size_t>
-connected_socket::write(gsl::span<const char> data)
-{
-  int res = ::write(d_fd, data.data(), data.size());
-  if (-1 == res) {
-    return {std::generic_category().default_error_condition(errno), 0};
-  }
+// std::pair<std::error_condition, size_t>
+// connected_socket::write(gsl::span<const char> data)
+// {
+//   int res = ::write(d_fd, data.data(), data.size());
+//   if (-1 == res) {
+//     return {std::generic_category().default_error_condition(errno), 0};
+//   }
 
-  assert(res >= 0);
-  return {std::error_condition(), static_cast<size_t>(res)};
-}
+//   assert(res >= 0);
+//   return {std::error_condition(), static_cast<size_t>(res)};
+// }
 
-std::pair<std::error_condition, size_t>
-connected_socket::read(gsl::span<char> data)
-{
-  int res = ::read(d_fd, data.data(), data.size());
-  if (-1 == res) {
-    return {std::generic_category().default_error_condition(errno), 0};
-  }
+// std::pair<std::error_condition, size_t>
+// connected_socket::read(gsl::span<char> data)
+// {
+//   int res = ::read(d_fd, data.data(), data.size());
+//   if (-1 == res) {
+//     return {std::generic_category().default_error_condition(errno), 0};
+//   }
 
-  assert(res >= 0);
-  return {std::error_condition(), static_cast<size_t>(res)};
-}
+//   assert(res >= 0);
+//   return {std::error_condition(), static_cast<size_t>(res)};
+// }
 
 // ACCESSORS
 address connected_socket::local_address() const

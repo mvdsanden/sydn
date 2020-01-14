@@ -10,7 +10,7 @@ namespace syd {
 namespace net {
 
 /**
- * 
+ *
  */
 class connected_reader
 {
@@ -20,7 +20,7 @@ class connected_reader
   Socket &                     d_socket;
   mutable std::error_condition d_last_error;
   size_t                       d_last_bytes = 0;
-  
+
 public:
   // CREATORS
 
@@ -28,14 +28,14 @@ public:
    * Create a reader that uses the specified 'socket'.
    */
   connected_reader(Socket &socket);
-  
-   connected_reader(connected_reader const &) = delete;
-   connected_reader(connected_reader &&) = delete;
-  
+
+  connected_reader(connected_reader const &) = delete;
+  connected_reader(connected_reader &&)      = delete;
+
   // MANIPULATORS
 
-   connected_reader &operator=(connected_reader const &) = delete;
-   connected_reader &operator=(connected_reader &&) = delete;
+  connected_reader &operator=(connected_reader const &) = delete;
+  connected_reader &operator=(connected_reader &&) = delete;
 
   /**
    * Read the specified 'data' from the reader. See 'read_count' for the number
@@ -45,7 +45,7 @@ public:
   connected_reader &read(gsl::span<char> data);
 
   // TODO: operator()() for reading?
-  
+
   // ACCESSORS
 
   /**
@@ -80,29 +80,29 @@ public:
 
 // ------------------------------ INLINE METHODS ------------------------------
 
- inline connected_reader::connected_reader(Socket &socket)
-     : d_socket(socket)
- {
- }
+inline connected_reader::connected_reader(Socket &socket)
+    : d_socket(socket)
+{}
 
- inline connected_reader &connected_reader::read(gsl::span<char> data)
- {
-   std::tie(d_last_error, d_last_bytes) = d_socket.read(data);
-   return *this;
- }
+// inline connected_reader &connected_reader::read(gsl::span<char> data)
+// {
+//   std::tie(d_last_error, d_last_bytes) = d_socket.read(data);
+//   return *this;
+// }
 
- inline connected_reader::operator bool() const { return okay(); }
+inline connected_reader::operator bool() const { return okay(); }
 
- inline bool connected_reader::okay() const {
-   return !d_last_error && !would_have_blocked();
- }
+inline bool connected_reader::okay() const
+{
+  return !d_last_error && !would_have_blocked();
+}
 
- inline size_t connected_reader::last_bytes() const { return d_last_bytes; }
+inline size_t connected_reader::last_bytes() const { return d_last_bytes; }
 
- inline bool connected_reader::would_have_blocked() const
- {
-   return d_last_error == std::errc::operation_would_block ||
-          d_last_error == std::errc::resource_unavailable_try_again;
+inline bool connected_reader::would_have_blocked() const
+{
+  return d_last_error == std::errc::operation_would_block ||
+         d_last_error == std::errc::resource_unavailable_try_again;
 }
 
 inline std::error_condition const &connected_reader::error() const

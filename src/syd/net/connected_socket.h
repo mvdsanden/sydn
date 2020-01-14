@@ -19,7 +19,13 @@ namespace net {
  */
 class connected_socket
 {
-  int d_fd = -1;
+public:
+  // PUBLIC TYPES
+  using handle_type = int;
+
+private:
+  // DATA
+  handle_type d_fd = -1;
 
 public:
   // CREATORS
@@ -51,16 +57,21 @@ public:
    * 'false' after this call and 'error' will return an appropriate error
    * condition.
    */
-  std::pair<std::error_condition, size_t> write(gsl::span<const char> data);
+  //  std::pair<std::error_condition, size_t> write(gsl::span<const char> data);
   
   /**
    * Read the specified 'data' from the socket. See 'read_count' for the number
    * of bytes read. If an error occurs the socket will compare to 'false' after
    * this call and 'error' will return an appropriate error condition.
    */
-  std::pair<std::error_condition, size_t> read(gsl::span<char> data);
+  //  std::pair<std::error_condition, size_t> read(gsl::span<char> data);
 
   // ACCESSORS
+
+  /**
+   * Return the native handle.
+   */
+  handle_type native_handle() const;
 
   /**
    * Return the socket local address.
@@ -70,6 +81,11 @@ public:
 };
 
 // ------------------------------ INLINE METHODS ------------------------------
+
+inline connected_socket::handle_type connected_socket::native_handle() const
+{
+  return d_fd;
+}
 
 } // namespace net
 } // namespace syd
