@@ -54,6 +54,16 @@ public:
   }
 
   /**
+   * Accept a new connection into the specified 'socket'. Store the peer address
+   * in the specified 'remote_address'. Return an error condition.
+   */
+  virtual std::error_condition accept(socket_buffer &socket,
+                                      address &      remote_address)
+  {
+    return std::errc::function_not_supported;
+  }
+
+  /**
    * Write the specified 'data' to the socket. Return an error condition and the
    * number of bytes written.
    */
@@ -71,26 +81,6 @@ public:
   read(gsl::span<char> data)
   {
     return {std::errc::function_not_supported, 0};
-  }
-
-  /**
-   * Save a pointer to the specified 'event_reporter'. The socket buffer will
-   * automatically register itself with the 'event_reporter'. It will unregister
-   * with the 'event_reporter' on destruction or when another 'reporter' is set.
-   */
-  virtual std::error_condition
-  set_event_reporter(event_reported *event_reporter)
-  {
-    return std::errc::function_not_supported;
-  }
-
-  /**
-   * Set the specified 'event_handler' functor. The method will be called
-   */
-  virtual std::error_condition
-  set_event_handler(std::function<void(size_t)> const &event_handler)
-  {
-    return std::errc::function_not_supported;
   }
   
   // ACCESSORS

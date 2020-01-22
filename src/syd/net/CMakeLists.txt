@@ -7,6 +7,7 @@ syd_add_library(
   ipv4_address
   unix_address
   socket_buffer
+  posix_socket_buffer
   connected_socket
   connected_reader
   connected_writer
